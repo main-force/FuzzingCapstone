@@ -37,9 +37,11 @@ class ReplyViewSet(mixins.CreateModelMixin,
 
     @swagger_auto_schema(tags=['replies'])
     def create(self, request, post_id=None):
+        post = get_object_or_404(Post, id=post_id)
+
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            serializer.save(post_id=post_id)
+            serializer.save(post=post)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -52,8 +54,8 @@ class ReplyViewSet(mixins.CreateModelMixin,
 
     @swagger_auto_schema(tags=['replies'])
     def destroy(self, request, post_id=None, pk=None):
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        # queryset = self.get_queryset()
-        # reply = get_object_or_404(queryset, pk=pk)
-        # reply.delete()
-        # return Response(status=status.HTTP_204_NO_CONTENT)
+        # return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        queryset = self.get_queryset()
+        reply = get_object_or_404(queryset, pk=pk)
+        reply.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
