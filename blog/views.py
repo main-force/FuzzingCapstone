@@ -54,8 +54,22 @@ class ReplyViewSet(mixins.CreateModelMixin,
 
     @swagger_auto_schema(tags=['replies'])
     def destroy(self, request, post_id=None, pk=None):
-        # return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # post_id를 가진 post를 조회
+        post = get_object_or_404(Post, id=post_id)
+
+        # 만약 post_id를 가진 post가 없으면 404를 띄워
+        if not post:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # post_id가 있으면, 해당 post를 가지고, reply_id를 가진 reply를 조회
         queryset = self.get_queryset()
-        reply = get_object_or_404(queryset, pk=pk)
-        reply.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        reply = queryset.filter(post=post, id=pk).first()
+
+        # 만약 reply_id를 가진 reply가 있으면 500을 띄워
+        if reply:
+            # reply.delete()
+            # return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # 그렇지 않으면 404를 띄워
+        return Response(status=status.HTTP_404_NOT_FOUND)
